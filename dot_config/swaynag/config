@@ -1,44 +1,44 @@
 [warning]
-background=17111d
-border=2a2030
-border-bottom=c98b5b
+background=242424
+border=444444
+border-bottom=888888
 
-button-background=2a2030
+button-background=333333
 button-border-size=0
 button-gap=8
 button-margin-right=4
 button-padding=8
-button-text=e6dfe8
+button-text=d8d8d8
 
-details-background=0b090d
+details-background=1c1c1c
 details-border-size=1
 
 message-padding=12
 
-text=e6dfe8
+text=d8d8d8
 font=monospace 11
 
 edge=bottom
 
 
 [error]
-background=17111d
-border=2a2030
-border-bottom=8f2d3c
+background=242424
+border=444444
+border-bottom=e00712
 
-button-background=2a2030
+button-background=333333
 button-border-size=0
 button-gap=8
 button-margin-right=4
 button-padding=8
-button-text=e6dfe8
+button-text=d8d8d8
 
-details-background=0b090d
+details-background=1c1c1c
 details-border-size=1
 
 message-padding=12
 
-text=e6dfe8
+text=d8d8d8
 font=IBM Plex Mono 11
 
 edge=bottom

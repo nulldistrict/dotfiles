@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mode="${1:-area}"
+geometry=()
+
+case "$mode" in
+    area|clipboard)
+        # Escape cancels the selection without creating an empty image.
+        if ! selection="$(slurp)" || [[ -z "$selection" ]]; then
+            exit 0
+        fi
+        geometry=(-g "$selection")
+        ;;
+    window)
+        # Use the focused view, not its enclosing workspace/container.
+        selection="$(swaymsg -t get_tree | jq -er '
+            first(.. | objects |
+                select(.focused == true and (.pid != null or .window != null)) |
+                .rect | "\(.x),\(.y) \(.width)x\(.height)")')" || {
+            notify-send 'Screenshot' 'No focused window to capture' || true
+            exit 1
+        }
+        geometry=(-g "$selection")
+        ;;
+    screen) ;;
+    *) printf 'Usage: sway-screenshot [area|screen|window|clipboard]\n' >&2; exit 2 ;;
+esac
+
+if [[ "$mode" == clipboard ]]; then
+    grim "${geometry[@]}" - | wl-copy --type image/png
+    notify-send 'Screenshot' 'Copied selected region to clipboard' || true
+else
+    directory="$HOME/Pictures/Screenshots"
+    mkdir -p -- "$directory"
+    # mktemp prevents repeated keypresses from overwriting an earlier image.
+    destination="$(mktemp "$directory/$(date +screenshot-%Y-%m-%d-%H%M%S)-XXXXXX.png")"
+    if ! grim "${geometry[@]}" "$destination"; then
+        rm -f -- "$destination"
+        exit 1
+    fi
+    notify-send 'Screenshot saved' "$destination" || true
+fi

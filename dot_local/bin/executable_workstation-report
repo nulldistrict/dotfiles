@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Collect non-secret hardware facts before choosing display/GPU overrides.
+printf 'Host: '
+hostnamectl --static
+printf 'Model: '
+cat /sys/class/dmi/id/product_name
+printf '\nKernel: '
+uname -r
+printf '\nDisplay, network and audio hardware:\n'
+lspci -nnk | rg -A3 'VGA|3D controller|Display controller|Network controller|Ethernet controller|Audio device'
+printf '\nBattery devices:\n'
+for battery in /sys/class/power_supply/BAT*; do
+    [[ -d "$battery" ]] || continue
+    printf '%s: ' "${battery##*/}"
+    cat "$battery/status" "$battery/capacity"
+done
+if [[ -n "${SWAYSOCK:-}" ]]; then
+    printf '\nSway outputs and available modes:\n'
+    swaymsg -t get_outputs | jq '[.[] | {name, make, model, active, scale, current_mode, modes}]'
+    printf '\nSway input identifiers:\n'
+    swaymsg -t get_inputs | jq '[.[] | {identifier, type, xkb_active_layout_name}]'
+fi
+printf '\nInstalled kernel and NVIDIA packages:\n'
+pacman -Q | rg '^(linux(|-lts|-zen|-hardened)(-headers)?|nvidia[^ ]*|acpi_call[^ ]*) ' || true
+printf '\nDell daemon: '
+systemctl is-enabled awccd.service 2>/dev/null || true
+printf '\nThis report does not query nvidia-smi or wake the discrete GPU.\n'

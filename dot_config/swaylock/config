@@ -1,31 +1,31 @@
 daemonize
 show-failed-attempts
 
-color=0b090d
+color=1c1c1c
 
 font=IBM Plex Mono
 font-size=24
 
-indicator
+indicator-idle-visible
 indicator-radius=90
 indicator-thickness=8
 
-inside-color=17111dff
-ring-color=8f6aa8ff
+inside-color=242424ff
+ring-color=444444ff
 
 line-color=00000000
 separator-color=00000000
 
-key-hl-color=b89ad0ff
-bs-hl-color=8f2d3cff
+key-hl-color=cfa36eff
+bs-hl-color=888888ff
 
-text-color=e6dfe8ff
-text-clear-color=e6dfe8ff
-text-caps-lock-color=c98b5bff
-text-ver-color=e6dfe8ff
-text-wrong-color=8f2d3cff
+text-color=d8d8d8ff
+text-clear-color=d8d8d8ff
+text-caps-lock-color=cfa36eff
+text-ver-color=d8d8d8ff
+text-wrong-color=ffffffff
 
-ring-clear-color=7f7187ff
-ring-caps-lock-color=c98b5bff
-ring-ver-color=b89ad0ff
-ring-wrong-color=8f2d3cff
+ring-clear-color=888888ff
+ring-caps-lock-color=cfa36eff
+ring-ver-color=cfa36eff
+ring-wrong-color=e00712ff

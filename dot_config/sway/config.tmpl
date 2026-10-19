@@ -2,7 +2,9 @@
 # Variables
 # ============================================================
 
+{{ $profile := index .machines .chezmoi.hostname -}}
 set $mod Mod4
+set $lock ~/.local/bin/sway-lock
 
 set $left h
 set $down j
@@ -18,27 +20,24 @@ set $menu fuzzel
 # ============================================================
 
 set {
-    $black    #0b090d
-    $panel    #17111d
-    $line     #2a2030
-
-    $purple   #8f6aa8
-    $purpleLt #b89ad0
-
-    $amber    #c98b5b
-    $red      #8f2d3c
-
-    $muted    #7f7187
-    $text     #e6dfe8
+    $black     #1c1c1c
+    $panel     #242424
+    $line      #444444
+    $accent    #cfa36e
+    $highlight #cfa36e
+    $amber     #cfa36e
+    $red       #e00712
+    $muted     #888888
+    $text      #d8d8d8
 }
 
 #                         border    bgrnd     text       indic       child
-client.focused            $panel    $panel    $purple    $purpleLt   $panel
-client.unfocused          $black    $black    $muted     $panel      $panel
-client.focused_inactive   $black    $black    $muted     $black      $black
-client.focused_tab_title  $panel    $panel    $muted
-client.urgent             $red      $red      $text      $amber      $red
-client.placeholder        $black    $black    $text      $text       $black
+client.focused            $accent   $panel    $text      $highlight  $accent
+client.unfocused          $line     $black    $muted     $line       $line
+client.focused_inactive   $line     $black    $muted     $line       $line
+client.focused_tab_title  $panel    $panel    $text
+client.urgent             $red      $panel    $text      $red        $red
+client.placeholder        $line     $black    $text      $line       $line
 
 font pango:IBM Plex Mono 10
 
@@ -48,8 +47,6 @@ default_floating_border pixel 2
 titlebar_border_thickness 2
 titlebar_padding 6 4
 
-gaps inner 0
-gaps outer 0
 
 hide_edge_borders none
 show_marks yes
@@ -72,7 +69,7 @@ input "type:pointer" {
     pointer_accel 0
 }
 
-{{ if eq (index .machines .chezmoi.hostname).type "laptop" }}
+{{ if eq $profile.type "laptop" }}
 input "type:touchpad" {
     tap disabled
     natural_scroll enabled
@@ -84,7 +81,7 @@ input "type:touchpad" {
 # Outputs
 # ============================================================
 
-output * bg ~/.config/backgrounds/1.jpg fill
+output * bg #1c1c1c solid_color
 
 {{ if eq .chezmoi.hostname "molly" }}
 output DP-1 {
@@ -120,8 +117,13 @@ bindsym $mod+Ctrl+n exec makoctl restore
 # Kill window
 bindsym $mod+Escape kill
 
+# Kill window without the compact keyboard's Fn layer
+{{ if eq .chezmoi.hostname "molly" }}
+bindsym $mod+q kill
+{{ end }}
+
 # Lock
-bindsym $mod+Ctrl+l exec swaylock
+bindsym $mod+Ctrl+l exec $lock
 
 # Reload Sway
 bindsym $mod+Shift+c reload
@@ -138,16 +140,16 @@ bindsym $mod+Shift+e exec swaynag \
 # ============================================================
 
 # Mute audio
-bindsym XF86AudioMute exec \
+bindsym --locked --no-repeat XF86AudioMute exec \
     wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 
 # Lower volume
-bindsym XF86AudioLowerVolume exec \
+bindsym --locked XF86AudioLowerVolume exec \
     wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
 
 # Raise volume
-bindsym XF86AudioRaiseVolume exec \
-    wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+bindsym --locked XF86AudioRaiseVolume exec \
+    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
 
 # Previous track
 bindsym XF86AudioPrev exec playerctl previous
@@ -158,12 +160,22 @@ bindsym XF86AudioPlay exec playerctl play-pause
 # Next track
 bindsym XF86AudioNext exec playerctl next
 
+# Compact keyboard media controls without function keys
+{{ if eq .chezmoi.hostname "molly" }}
+bindsym $mod+Ctrl+Down exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym $mod+Ctrl+Up exec wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+bindsym $mod+Ctrl+m exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym $mod+Ctrl+Space exec playerctl play-pause
+bindsym $mod+Mod1+Left exec playerctl previous
+bindsym $mod+Mod1+Right exec playerctl next
+{{ end }}
+
 
 # ============================================================
 # Laptop brightness
 # ============================================================
 
-{{ if or (eq .chezmoi.hostname "funkypunk") (eq .chezmoi.hostname "badapple") }}
+{{ if eq $profile.type "laptop" }}
 
 # Lower display brightness
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
@@ -171,6 +183,11 @@ bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 # Raise display brightness
 bindsym XF86MonBrightnessUp exec brightnessctl set +5%
 
+{{ end }}
+
+{{ if $profile.dell_awcc }}
+# Open Dell lighting and thermal controls; the daemon handles hardware hotkeys
+bindsym $mod+Ctrl+g exec awcc
 {{ end }}
 
 
@@ -205,7 +222,7 @@ bindsym $mod+F2 exec \
 
 # Raise volume
 bindsym $mod+F3 exec \
-    wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+    wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
 
 # Previous track
 bindsym $mod+F5 exec playerctl previous
@@ -231,21 +248,28 @@ bindsym $mod+F9 exec brightnessctl set +5%
 # Screenshots
 # ============================================================
 
-# Screenshot whole screen
-bindsym Print exec sh -c \
-    'mkdir -p "$HOME/Pictures/Screenshots"; \
-     grim "$HOME/Pictures/Screenshots/$(date +screenshot-%Y-%m-%d-%H%M%S).png"'
+{{ if eq .chezmoi.hostname "molly" }}
+# Save selected region to a file
+bindsym $mod+a exec ~/.local/bin/sway-screenshot area
 
-# Screenshot selected region
-bindsym Shift+Print exec sh -c \
-    'mkdir -p "$HOME/Pictures/Screenshots"; \
-     geometry="$(slurp)" && \
-     grim -g "$geometry" \
-     "$HOME/Pictures/Screenshots/$(date +screenshot-%Y-%m-%d-%H%M%S).png"'
+# Save all outputs to a file
+bindsym $mod+Shift+a exec ~/.local/bin/sway-screenshot screen
 
-# Screenshot selected region to clipboard
-bindsym $mod+Print exec sh -c \
-    'geometry="$(slurp)" && grim -g "$geometry" - | wl-copy'
+# Copy selected region to clipboard
+bindsym $mod+Ctrl+a exec ~/.local/bin/sway-screenshot clipboard
+
+# Save the focused window to a file
+bindsym $mod+Mod1+a exec ~/.local/bin/sway-screenshot window
+
+{{ else }}
+# Keep dedicated PrintScreen keys usable on laptop keyboards
+bindsym Print exec ~/.local/bin/sway-screenshot screen
+bindsym Shift+Print exec ~/.local/bin/sway-screenshot area
+bindsym $mod+Print exec ~/.local/bin/sway-screenshot clipboard
+{{ end }}
+
+# Pick a screen color and copy it to clipboard
+bindsym $mod+Shift+p exec hyprpicker --autocopy
 
 
 # ============================================================
@@ -278,6 +302,12 @@ bindsym $mod+Right focus right
 
 # Focus parent
 bindsym $mod+Ctrl+p focus parent
+
+# Move focus between parent containers
+bindsym $mod+Mod1+$left focus parent, focus left, focus child
+bindsym $mod+Mod1+$down focus parent, focus down, focus child
+bindsym $mod+Mod1+$up focus parent, focus up, focus child
+bindsym $mod+Mod1+$right focus parent, focus right, focus child
 
 
 # ============================================================
@@ -419,6 +449,7 @@ bindsym $mod+Tab focus mode_toggle
 
 # Toggle fullscreen
 bindsym $mod+z fullscreen toggle
+bindsym $mod+f fullscreen toggle
 
 floating_modifier $mod normal
 
@@ -443,11 +474,11 @@ mode "resize" {
     # Shrink width
     bindsym $left resize shrink width 10px
 
-    # Grow height
-    bindsym $down resize grow height 10px
-
     # Shrink height
-    bindsym $up resize shrink height 10px
+    bindsym $down resize shrink height 10px
+
+    # Grow height
+    bindsym $up resize grow height 10px
 
     # Grow width
     bindsym $right resize grow width 10px
@@ -455,14 +486,28 @@ mode "resize" {
     # Shrink width with arrow
     bindsym Left resize shrink width 10px
 
-    # Grow height with arrow
-    bindsym Down resize grow height 10px
-
     # Shrink height with arrow
-    bindsym Up resize shrink height 10px
+    bindsym Down resize shrink height 10px
+
+    # Grow height with arrow
+    bindsym Up resize grow height 10px
 
     # Grow width with arrow
     bindsym Right resize grow width 10px
+
+    # Move floating windows in small steps
+    bindsym Shift+$left move left 10px
+    bindsym Shift+$down move down 10px
+    bindsym Shift+$up move up 10px
+    bindsym Shift+$right move right 10px
+    bindsym Shift+Left move left 10px
+    bindsym Shift+Down move down 10px
+    bindsym Shift+Up move up 10px
+    bindsym Shift+Right move right 10px
+
+    # Resize floating windows to common dimensions
+    bindsym 6 resize set width 640px height 480px
+    bindsym 0 resize set width 1024px height 768px
 
     # Leave resize mode
     bindsym Escape mode "default"
@@ -507,6 +552,15 @@ bar {
 # Services
 # ============================================================
 
+# Select a random wallpaper on startup and reload
+exec_always --no-startup-id ~/.local/bin/sway-wallpaper
+
+# Pick another wallpaper without reloading
+bindsym $mod+Ctrl+b exec ~/.local/bin/sway-wallpaper
+
+# OpenSnitch tray interface
+exec --no-startup-id opensnitch-ui
+
 # Notifications
 exec --no-startup-id mako
 
@@ -518,11 +572,12 @@ exec_always --no-startup-id sh -c \
 
 # Idle manager
 exec --no-startup-id swayidle -w \
-    timeout 600 'swaylock' \
+    timeout 600 '~/.local/bin/sway-lock' \
     timeout 900 'swaymsg "output * power off"' \
         resume 'swaymsg "output * power on"' \
-    before-sleep 'swaylock' \
-    lock 'swaylock'
+    before-sleep '~/.local/bin/sway-lock' \
+    after-resume 'swaymsg "output * power on"' \
+    lock '~/.local/bin/sway-lock'
 
 
 # ============================================================
@@ -530,3 +585,8 @@ exec --no-startup-id swayidle -w \
 # ============================================================
 
 include /etc/sway/config.d/*
+
+# Window spacing
+gaps inner 10
+gaps outer 6
+smart_gaps off

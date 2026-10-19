@@ -31,6 +31,13 @@
       ansible.builtin.debug:
         msg: "{{ hostname }}: {{ profile.type }}, {{ profile.gpu }}, gaming={{ profile.gaming }}"
 
+    - name: Verify Dell profile matches the hardware
+      ansible.builtin.assert:
+        that:
+          - "'G15 5530' in ansible_facts.get('product_name', '')"
+        fail_msg: The funkypunk hardware profile is intended for the Dell G15 5530.
+      when: profile.dell_awcc | default(false)
+
     - name: Detect installed kernels for NVIDIA DKMS
       ansible.builtin.command:
         argv: [pacman, -Qq, linux, linux-lts, linux-zen, linux-hardened]
@@ -39,6 +46,27 @@
       failed_when: false
       check_mode: false
       when: profile.gpu == 'nvidia_hybrid'
+
+    - name: Check competing Dell profile managers
+      ansible.builtin.command:
+        argv: [systemctl, show, --property=ActiveState, --property=UnitFileState, --value, "{{ item }}"]
+      loop:
+        - power-profiles-daemon.service
+        - tlp.service
+        - tuned.service
+      register: competing_profile_managers
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      when: profile.dell_awcc | default(false)
+
+    - name: Require one Dell thermal profile manager
+      ansible.builtin.assert:
+        that:
+          - "item.stdout_lines | intersect(['active', 'activating', 'enabled', 'enabled-runtime']) | length == 0"
+        fail_msg: "{{ item.item }} is active/enabled. Choose AWCC or that profile manager before provisioning."
+      loop: "{{ competing_profile_managers.results | default([]) }}"
+      when: profile.dell_awcc | default(false)
 
     - name: Require a supported kernel for NVIDIA DKMS
       ansible.builtin.assert:
@@ -109,6 +137,23 @@
             name: "{{ workstation_user }}"
             groups: docker
             append: true
+
+        - name: Enable Dell Bluetooth for next boot
+          become: true
+          ansible.builtin.systemd_service:
+            name: bluetooth.service
+            enabled: true
+          when: profile.dell_awcc | default(false)
+
+        - name: Load Dell control module on subsequent boots
+          become: true
+          ansible.builtin.copy:
+            dest: /etc/modules-load.d/dell-awcc.conf
+            owner: root
+            group: root
+            mode: "0644"
+            content: "acpi_call\n"
+          when: profile.dell_awcc | default(false)
 
         - name: Create Syncthing user service directory
           ansible.builtin.file:

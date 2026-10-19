@@ -4,13 +4,23 @@ config="${XDG_CONFIG_HOME:-$HOME/.config}/sway/config"
 
 [ -r "$config" ] || exit 1
 
-rg -NoU \
-    '^# ([^\n]+)\nbindsym ([^ ]+) .*' \
-    -r '$2|$1' \
-    "$config" |
-awk -F '|' '{
-    printf "%-28s %s\n", $1, $2
-}' |
+# Read the rendered config, including bindings with --locked/--no-repeat.
+awk '
+    /^mode "/ { mode = $2; gsub(/"/, "", mode) }
+    /^}/ { mode = "" }
+    /^[[:space:]]*# / {
+        description = $0
+        sub(/^[[:space:]]*# /, "", description)
+    }
+    /^[[:space:]]*bindsym / {
+        index_key = 2
+        while ($index_key ~ /^--/) index_key++
+        key = $index_key
+        gsub(/\$mod/, "Super", key)
+        if (mode != "") key = mode ": " key
+        printf "%-34s %s\n", key, description
+    }
+' "$config" |
 fuzzel \
     --dmenu \
     --prompt="Sway > "

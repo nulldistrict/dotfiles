@@ -1,16 +1,16 @@
-@define-color nr_void      #0b090d;
-@define-color nr_panel     #17111d;
-@define-color nr_line      #2a2030;
+@define-color zp_void      #1c1c1c;
+@define-color zp_panel     #242424;
+@define-color zp_line      #444444;
 
-@define-color nr_purple    #8f6aa8;
-@define-color nr_purple_lt #b89ad0;
+@define-color zp_accent    #cfa36e;
+@define-color zp_highlight #ffffff;
 
-@define-color nr_amber     #c98b5b;
-@define-color nr_red       #8f2d3c;
+@define-color zp_amber     #cfa36e;
+@define-color zp_red       #e00712;
 
-@define-color nr_text      #e6dfe8;
-@define-color nr_muted     #7f7187;
-@define-color nr_dim       #54495a;
+@define-color zp_text      #d8d8d8;
+@define-color zp_muted     #888888;
+@define-color zp_dim       #888888;
 
 
 * {
@@ -24,8 +24,8 @@
 }
 
 window#waybar {
-    background-color: @nr_void;
-    color: @nr_dim;
+    background-color: @zp_void;
+    color: @zp_dim;
 }
 
 window#waybar.hidden {
@@ -33,12 +33,12 @@ window#waybar.hidden {
 }
 
 tooltip {
-    background-color: @nr_panel;
-    border: 1px solid @nr_line;
+    background-color: @zp_panel;
+    border: 1px solid @zp_line;
 }
 
 tooltip label {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 .module {
@@ -54,7 +54,7 @@ tooltip label {
     min-width: 32px;
     padding: 4px 6px;
 
-    color: @nr_dim;
+    color: @zp_dim;
     background: transparent;
 
     box-shadow: none;
@@ -62,96 +62,97 @@ tooltip label {
 }
 
 #workspaces button:hover {
-    color: @nr_purple_lt;
+    color: @zp_highlight;
     background: transparent;
 }
 
 #workspaces button.focused,
 #workspaces button.active {
-    color: @nr_purple;
+    color: #ffffff;
+    background: transparent;
+    box-shadow: inset 0 -2px @zp_accent;
 }
 
 #workspaces button.urgent {
-    color: @nr_text;
-    background-color: @nr_red;
+    color: #e00712;
 }
 
 #window {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 #mode {
-    color: @nr_text;
+    color: @zp_text;
 
-    border: 2px solid @nr_purple;
+    border: 2px solid @zp_accent;
 
     padding: 0 8px;
 }
 
 #network {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 #custom-vpn.connected {
-    color: @nr_purple;
+    color: @zp_text;
 }
 
 #custom-vpn.disconnected {
-    color: @nr_dim;
+    color: @zp_dim;
 }
 
 #cpu,
 #memory,
 #disk {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 #cpu.warning {
-    color: @nr_amber;
+    color: @zp_amber;
 }
 
 #cpu.critical {
-    color: @nr_red;
+    color: #e00712;
 }
 
 #custom-screenrecord {
-    color: @nr_dim;
+    color: @zp_dim;
 }
 
 #custom-screenrecord.recording {
-    color: @nr_red;
+    color: #e00712;
 }
 
 #custom-syncthing {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 #custom-syncthing.disconnected {
-    color: @nr_dim;
+    color: @zp_dim;
 }
 
 #custom-weather {
-    color: @nr_amber;
+    color: @zp_text;
 }
 
 #wireplumber {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 #battery {
-    color: @nr_text;
+    color: @zp_text;
 }
 
 #battery.warning {
-    color: @nr_amber;
+    color: @zp_amber;
 }
 
 #battery.critical:not(.charging) {
-    color: @nr_red;
+    color: #e00712;
 }
 
 #backlight {
-    color: @nr_muted;
+    color: @zp_muted;
 }
 
 #tray {
@@ -163,7 +164,7 @@ tooltip label {
 }
 
 #clock {
-    color: @nr_text;
+    color: @zp_text;
     margin-right: 4px;
 }
 

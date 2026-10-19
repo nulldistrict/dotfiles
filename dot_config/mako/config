@@ -1,8 +1,8 @@
 font=IBM Plex Mono 11
 
-background-color=#17111d
-text-color=#e6dfe8
-border-color=#8f6aa8
+background-color=#242424
+text-color=#d8d8d8
+border-color=#444444
 
 border-size=2
 border-radius=0
@@ -23,19 +23,19 @@ markup=1
 actions=1
 
 [urgency=low]
-background-color=#0b090d
-text-color=#7f7187
-border-color=#2a2030
+background-color=#242424
+text-color=#d8d8d8
+border-color=#444444
 default-timeout=3000
 
 [urgency=normal]
-background-color=#17111d
-text-color=#e6dfe8
-border-color=#8f6aa8
+background-color=#242424
+text-color=#d8d8d8
+border-color=#444444
 default-timeout=5000
 
 [urgency=critical]
-background-color=#17111d
-text-color=#e6dfe8
-border-color=#8f2d3c
+background-color=#242424
+text-color=#d8d8d8
+border-color=#e00712
 default-timeout=0

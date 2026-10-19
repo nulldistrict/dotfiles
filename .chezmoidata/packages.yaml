@@ -13,6 +13,7 @@ packages:
       - man-pages
       - xdg-utils
       - shared-mime-info
+      - pciutils
       - flatpak
 
       # Shell / development
@@ -42,6 +43,7 @@ packages:
       - wf-recorder
       - libnotify
       - wev
+      - hyprpicker
 
       # Portals
       - xdg-desktop-portal
@@ -162,8 +164,19 @@ packages:
 
     # Dell G15 - Intel + RTX 4050
     funkypunk:
+      - intel-ucode
+      - linux-firmware
+      - bluez
+      - bluez-utils
+      - upower
+      - fwupd
+      - acpi_call-dkms
       - mesa
+      - mesa-utils
       - lib32-mesa
+      - intel-media-driver
+      - libva-utils
+      - vulkan-tools
       - vulkan-intel
       - lib32-vulkan-intel
       - nvidia-open-dkms
@@ -198,6 +211,10 @@ packages:
       - ayugram-desktop-bin
       - mepo
       - mu
+
+    # Dell lighting, thermal profiles and hardware hotkeys
+    funkypunk:
+      - awcc-bin
 
 flatpak:
   common: []

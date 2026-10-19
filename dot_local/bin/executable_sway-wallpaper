@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+directory="${XDG_CONFIG_HOME:-$HOME/.config}/backgrounds"
+[[ -d "$directory" ]] || exit 0
+
+mapfile -d '' -t wallpapers < <(
+    find "$directory" -type f \( -iname '*.jpg' -o -iname '*.jpeg' \
+        -o -iname '*.png' -o -iname '*.webp' \) -print0
+)
+(( ${#wallpapers[@]} > 0 )) || exit 0
+
+wallpaper="${wallpapers[RANDOM % ${#wallpapers[@]}]}"
+# Quote the filename as a Sway string, including spaces and punctuation.
+quoted="$(jq -cn --arg path "$wallpaper" '$path')"
+exec swaymsg "output * bg $quoted fill"

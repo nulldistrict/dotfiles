@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+# Return only after the compositor confirms that the screen is locked.
+exec swaylock -f

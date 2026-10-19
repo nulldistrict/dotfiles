@@ -57,7 +57,7 @@ ansible-playbook -i localhost, -c local -K ansible/workstation.yml
 # Capture command failures before mapfile (process substitution hides errors).
 STAGE=manifest
 aur_list="$(chezmoi --source "$REPO" execute-template \
-    '{{ range .packages.aur.common }}{{ . }}{{ "\n" }}{{ end }}')"
+    '{{ range .packages.aur.common }}{{ . }}{{ "\n" }}{{ end }}{{ with index .packages.aur .chezmoi.hostname }}{{ range . }}{{ . }}{{ "\n" }}{{ end }}{{ end }}')"
 # Go template variables must remain literal.
 # shellcheck disable=SC2016
 flatpak_list="$(chezmoi --source "$REPO" execute-template \
@@ -82,6 +82,13 @@ if [[ -n "$aur_list" ]]; then
         paru -S --needed "${missing_aur[@]}"
     fi
     pacman -Q "${aur_packages[@]}"
+fi
+
+STAGE=dell-services
+if [[ "$HOST" == funkypunk ]]; then
+    # AWCC is installed by the machine-specific AUR manifest above.
+    # Enable for the next boot; do not switch thermal modes during setup.
+    sudo systemctl enable awccd.service
 fi
 
 STAGE=flatpak

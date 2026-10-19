@@ -18,11 +18,11 @@
   ],
 
   "modules-right": [
-{{ if or (eq .chezmoi.hostname "funkypunk") (eq .chezmoi.hostname "badapple") }}
+{{ if $laptop }}
     "backlight",
 {{ end }}
     "wireplumber",
-{{ if or (eq .chezmoi.hostname "funkypunk") (eq .chezmoi.hostname "badapple") }}
+{{ if $laptop }}
     "battery",
 {{ end }}
     "custom/weather",
@@ -259,7 +259,7 @@
   // Backlight
   // ==========================================================
 
-{{ if or (eq .chezmoi.hostname "funkypunk") (eq .chezmoi.hostname "badapple") }}
+{{ if $laptop }}
   "backlight": {
     "format":
       "BRT <span color='#7f7187'>{percent}%</span>",
@@ -293,7 +293,7 @@
   // Battery
   // ==========================================================
 
-{{ if or (eq .chezmoi.hostname "funkypunk") (eq .chezmoi.hostname "badapple") }}
+{{ if $laptop }}
   "battery": {
     "interval": 30,
 

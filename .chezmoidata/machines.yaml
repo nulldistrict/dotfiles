@@ -3,11 +3,14 @@ machines:
     type: desktop
     gpu: nouveau
     gaming: false
+    dell_awcc: false
   funkypunk:
     type: laptop
     gpu: nvidia_hybrid
     gaming: true
+    dell_awcc: true
   badapple:
     type: laptop
     gpu: intel
     gaming: false
+    dell_awcc: false

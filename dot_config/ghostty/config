@@ -26,13 +26,13 @@ cursor-style-blink = false
 # Theme
 # ============================================================
 
-background = 0b090d
-foreground = e6dfe8
+background=1c1c1c
+foreground=d8d8d8
 
-selection-background = 8f6aa8
-selection-foreground = 0b090d
+selection-background=333333
+selection-foreground=ffffff
 
-cursor-color = b89ad0
+cursor-color=cfa36e
 
 # ============================================================
 # Shell
