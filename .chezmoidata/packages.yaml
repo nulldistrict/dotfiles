@@ -38,12 +38,17 @@ packages:
       - ghostty
       - uwsm
       - wl-clipboard
+      - cliphist
       - grim
       - slurp
       - wf-recorder
       - libnotify
       - wev
       - hyprpicker
+      - tesseract
+      - tesseract-data-tur
+      - tesseract-data-eng
+      - polkit-gnome
 
       # Portals
       - xdg-desktop-portal
@@ -212,6 +217,7 @@ packages:
       - ayugram-desktop-bin
       - mepo
       - mu
+      - poweralertd
 
     # Dell lighting, thermal profiles and hardware hotkeys
     funkypunk:

@@ -525,13 +525,24 @@ bindsym $mod+r mode "resize"
 # Window rules
 # ============================================================
 
-for_window [app_id="pavucontrol"] floating enable
-for_window [app_id="org.gnupg.pinentry-qt"] floating enable
-for_window [app_id="keepassxc"] floating enable
-for_window [title="^Extension: .*" app_id="librewolf"] floating enable
+# Float and center audio controls.
+for_window [app_id="^(org\.pulseaudio\.)?pavucontrol$"] floating enable, resize set width 900 px height 600 px, move position center
+for_window [class="(?i)^Pavucontrol$"] floating enable, resize set width 900 px height 600 px, move position center
 
-for_window [title="^Open File$"] floating enable
-for_window [title="^Open Files$"] floating enable
+# Keep password prompts centered.
+for_window [app_id="^org\.gnupg\.pinentry-qt$"] floating enable, move position center
+for_window [class="(?i)^pinentry.*$"] floating enable, move position center
+for_window [window_type="dialog"] floating enable, move position center
+
+# Preserve the existing password-manager behavior.
+for_window [app_id="keepassxc"] floating enable
+
+# Float LibreWolf extension windows.
+for_window [title="^Extension: .*" app_id="librewolf"] floating enable, move position center
+
+# Center common English and Turkish file dialogs.
+for_window [title="^(Open File|Open Files|Save File|Save As|Dosya Aç|Dosyaları Aç|Dosyayı Aç|Dosyayı Kaydet|Farklı Kaydet)$"] floating enable, move position center
+
 
 for_window [shell="xwayland"] \
     title_format "<span>[X11] %title</span>"
@@ -593,3 +604,23 @@ smart_gaps off
 
 # NetworkManager tray applet
 exec --no-startup-id nm-applet --indicator
+
+# Start the graphical privilege authentication agent.
+exec /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# Copy text from a selected screen region.
+bindsym $mod+Ctrl+Shift+o exec ~/.local/bin/sway-ocr
+
+# Open clipboard history.
+bindsym $mod+Ctrl+v exec ~/.local/bin/sway-clipboard
+
+# Record clipboard changes once per session.
+exec --no-startup-id wl-paste --watch cliphist store
+
+{{ if eq $profile.type "laptop" }}
+# Show battery and power notifications.
+exec --no-startup-id poweralertd
+{{ end }}
+
+# Select the audio output and move existing playback streams.
+bindsym $mod+Ctrl+a exec ~/.local/bin/audio-router

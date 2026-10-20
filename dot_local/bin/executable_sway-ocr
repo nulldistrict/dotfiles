@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Cancel quietly when the selection is dismissed.
+region=$(slurp) || exit 0
+[[ -n "$region" ]] || exit 0
+
+# Recognize Turkish and English without saving the screenshot to disk.
+if ! text=$(
+    grim -s 3 -g "$region" - |
+        magick - -alpha off -colorspace Gray -auto-level \
+            -fx 'mean<0.5?1-u:u' \
+            -bordercolor white -border 12 png:- |
+        tesseract stdin stdout -l tur+eng --psm 6 --dpi 300
+); then
+    notify-send -u critical "Screen OCR" "Text recognition failed."
+    exit 1
+fi
+
+# Preserve the previous clipboard when no text is recognized.
+if [[ -z "${text//[[:space:]]/}" ]]; then
+    notify-send "Screen OCR" "No text found in the selected area."
+    exit 0
+fi
+
+printf '%s' "$text" | wl-copy --type text/plain
+notify-send "Screen OCR" "Recognized text copied to clipboard."

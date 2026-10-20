@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+fail() {
+    notify-send -u critical "Audio output" "$1"
+    exit 1
+}
+
+sinks=$(pactl --format=json list sinks) ||
+    fail "Could not query audio outputs."
+
+[[ "$(jq 'length' <<<"$sinks")" -gt 0 ]] ||
+    fail "No audio outputs found."
+
+current=$(pactl get-default-sink)
+
+# Keep device names separate from the displayed descriptions.
+labels=$(jq -r --arg current "$current" '
+    .[] |
+    (if .name == $current then "● " else "○ " end) +
+    ((.description // .name) | gsub("[\r\n\t]"; " "))
+' <<<"$sinks")
+
+choice=$(
+    printf '%s\n' "$labels" |
+        fuzzel --dmenu --index --only-match --prompt 'Audio output > '
+) || exit 0
+
+[[ "$choice" =~ ^[0-9]+$ ]] || exit 0
+
+sink=$(jq -er --argjson index "$choice" '.[$index].name' <<<"$sinks") ||
+    exit 0
+description=$(jq -r --argjson index "$choice" '
+    .[$index] | .description // .name
+' <<<"$sinks")
+
+pactl set-default-sink "$sink" ||
+    fail "Could not select the audio output."
+
+# Move existing playback streams without changing their volume.
+streams=$(pactl --format=json list sink-inputs) ||
+    fail "Output selected, but playback streams could not be queried."
+
+failed=0
+while IFS= read -r stream; do
+    if ! pactl move-sink-input "$stream" "$sink"; then
+        failed=1
+    fi
+done < <(jq -r '.[].index' <<<"$streams")
+
+if (( failed )); then
+    notify-send "Audio output" "$description — some streams could not be moved."
+else
+    notify-send "Audio output" "$description"
+fi
