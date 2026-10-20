@@ -60,6 +60,7 @@ packages:
 
       # Network
       - networkmanager
+      - network-manager-applet
       - opensnitch
       - syncthing
       - socat

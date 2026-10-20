@@ -187,7 +187,7 @@ bindsym XF86MonBrightnessUp exec brightnessctl set +5%
 
 {{ if $profile.dell_awcc }}
 # Open Dell lighting and thermal controls; the daemon handles hardware hotkeys
-bindsym $mod+Ctrl+g exec awcc
+bindsym $mod+Ctrl+g exec awcc --gui
 {{ end }}
 
 
@@ -590,3 +590,6 @@ include /etc/sway/config.d/*
 gaps inner 10
 gaps outer 6
 smart_gaps off
+
+# NetworkManager tray applet
+exec --no-startup-id nm-applet --indicator
